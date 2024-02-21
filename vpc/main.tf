@@ -2,7 +2,7 @@ resource "aws_vpc" "vpc-prod" {
   cidr_block = "10.70.0.0/16"
   instance_tenancy = "default"
   tags = {
-    Name = "vpc-prod"
+    Name = "vpc-prod-1"
   }
 }
 

@@ -117,7 +117,7 @@ resource "aws_instance" "my-public-instance" {
   instance_type = "t2.micro"
   subnet_id = aws_subnet.public-subnet[count.index].id
   key_name = "instance-key-prsnl-aws"
-  security_groups = [ aws_security_group.my-security-group.id ]
+  vpc_security_group_ids = [ aws_security_group.my-security-group.id ]
   associate_public_ip_address = true
   tags = {
     Name = "Public-Instance-${count.index + 1}"
@@ -130,7 +130,7 @@ resource "aws_instance" "my-private-instance" {
   instance_type = "t2.micro"
   subnet_id = aws_subnet.private-subnet[count.index].id
   key_name = "instance-key-prsnl-aws"
-  security_groups = [ aws_security_group.my-security-group.id ]
+  vpc_security_group_ids = [ aws_security_group.my-security-group.id ]
   associate_public_ip_address = false
   tags = {
     Name = "Private-Instance-${count.index + 1}"

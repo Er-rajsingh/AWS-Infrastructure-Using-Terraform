@@ -68,3 +68,29 @@ resource "aws_autoscaling_group" "my-web-asg" {
   vpc_zone_identifier = [ for s in data.aws_subnet.subnet_values: s.id ]
   enabled_metrics = [ "GroupMinSize", "GroupMaxSize", "GroupDesiredCapacity", "GroupInServiceInstances", "GroupPendingInstances", "WarmPoolMinSize" ]
 }
+
+resource "aws_autoscaling_policy" "asg-scale-up" {
+  name                   = "Step-Up-Policy"
+  autoscaling_group_name = aws_autoscaling_group.my-web-asg.name
+  policy_type            = "StepScaling"
+  adjustment_type        = "ChangeInCapacity"
+  
+  step_adjustment {
+    scaling_adjustment          = 1
+    metric_interval_lower_bound = 0
+    metric_interval_upper_bound = null
+  }
+}
+
+resource "aws_autoscaling_policy" "asg-scale-down" {
+  name                   = "Step-down-Policy"
+  autoscaling_group_name = aws_autoscaling_group.my-web-asg.name
+  policy_type            = "StepScaling"
+  adjustment_type        = "ChangeInCapacity"
+  
+  step_adjustment {
+    scaling_adjustment          = -1
+    metric_interval_lower_bound = null
+    metric_interval_upper_bound = 0
+  }
+}

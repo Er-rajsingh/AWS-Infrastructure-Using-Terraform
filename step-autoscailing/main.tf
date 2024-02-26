@@ -67,6 +67,11 @@ resource "aws_autoscaling_group" "my-web-asg" {
   default_cooldown = 300
   vpc_zone_identifier = [ for s in data.aws_subnet.subnet_values: s.id ]
   enabled_metrics = [ "GroupMinSize", "GroupMaxSize", "GroupDesiredCapacity", "GroupInServiceInstances", "GroupPendingInstances", "WarmPoolMinSize" ]
+  tag {
+    propagate_at_launch = true
+    key = "Name"
+    value = "My-asg-instance"
+  }
 }
 
 resource "aws_autoscaling_policy" "asg-scale-up" {

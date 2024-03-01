@@ -30,6 +30,18 @@ resource "aws_security_group" "my-asg-instance-sg" {
   }
 }
 
+data "aws_subnets" "subnets" {
+  filter {
+    name = "vpc-id"
+    values = [ var.aws-vpc ]
+  }
+}
+
+data "aws_subnet" "subnet_values" {
+  for_each = toset(data.aws_subnets.subnets.ids)
+  id = each.value
+}
+
 resource "aws_launch_template" "my-target-asg-lt-tf" {
     description = "Template used for asg"
     name = "target-asg-web-template"
@@ -40,4 +52,40 @@ resource "aws_launch_template" "my-target-asg-lt-tf" {
     tags = {
       Name = "my-web-asg-template"
     }
+}
+
+resource "aws_autoscaling_group" "target-asg-tf" {
+  name = "my-web-asg-tf"
+  desired_capacity = 1
+  min_size = 1
+  max_size = 5
+  launch_template {
+    id = aws_launch_template.my-target-asg-lt-tf.id
+    version = aws_launch_template.my-target-asg-lt-tf.latest_version
+  }
+  default_instance_warmup = 60
+  default_cooldown = 300
+  vpc_zone_identifier = [ for s in data.aws_subnet.subnet_values: s.id ]
+  enabled_metrics = [ "GroupMinSize", "GroupMaxSize", "GroupDesiredCapacity", "GroupInServiceInstances", "GroupPendingInstances", "WarmPoolMinSize" ]
+  tag {
+    propagate_at_launch = true
+    key = "Name"
+    value = "My-asg-instance"
+  }
+  
+}
+
+resource "aws_autoscaling_policy" "dynamic-asg-policy" {
+  name = "target-scailing-policy"
+  autoscaling_group_name = aws_autoscaling_group.target-asg-tf.name
+  policy_type = "TargetTrackingScaling"
+  target_tracking_configuration {
+    target_value = 60
+    customized_metric_specification {
+      metric_name = "CPUUtilization"
+      namespace = "AWS/AutoScaling"
+      statistic = "Average"
+      unit = "Percent"
+    }
+  }
 }

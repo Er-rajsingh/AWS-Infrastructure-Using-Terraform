@@ -5,7 +5,7 @@ variable "aws-vpc" {
 
 variable "instance-id" {
   type = string
-  default = "i-0b99359d225cb6bff"
+  default = "i-059d4c02946d335b2"
 }
 
 variable "sg-ports" {

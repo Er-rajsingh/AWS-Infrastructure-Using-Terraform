@@ -81,11 +81,8 @@ resource "aws_autoscaling_policy" "dynamic-asg-policy" {
   policy_type = "TargetTrackingScaling"
   target_tracking_configuration {
     target_value = 60
-    customized_metric_specification {
-      metric_name = "CPUUtilization"
-      namespace = "AWS/AutoScaling"
-      statistic = "Average"
-      unit = "Percent"
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
     }
   }
 }
